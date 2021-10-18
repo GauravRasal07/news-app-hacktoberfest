@@ -1,0 +1,69 @@
+<%- include("partials/header") %>
+
+<div class="jumbotron" style="padding-bottom: 3rem;">
+    <div class="container">
+        <h3><span class="wrap">Saved Articles</span></h3>
+    </div>
+</div>
+
+<div class="main">
+    <div class="row">
+        <% if(user.saved.length < 1){ %>
+            <h3 style="text-align: center;"><i class="fa fa-frown-o" aria-hidden="true"></i> Oops, There are No Saved articles to Display in this field!!!</h3>
+        <% } %>
+        <% user.saved.forEach((article) => { %>
+        <div class="column">
+            <div class="card">
+                <div>
+                    <span style="float: right;"><a class="save-btn" href="/remove-article/<%= currentUser.id %>/<%= article.id %>"><i class="fas fa-bookmark"></i></a></span>
+                </div><hr>
+                <div>
+                    <% if(article.urlToImage){ %>
+                        <img alt="News Image" class="newsImage" src="<%= article.urlToImage %>">
+                    <% } else { %>
+                        <img alt="News Image" class="newsImage" src="/images/no-bg.jpg">
+                    <% } %>
+                </div>
+                <hr>
+                <h4 style="padding-top: 20px;"><%= article.title %></h4>
+                <hr>
+                <div class="left"><%= article.description %></div>
+                <br>
+                <div class="left"><%= article.content %></div>
+                <hr>
+                <div style="text-align: center;">
+                    <a class="read" target="_blank" href="<%= article.url %>">Read More...</a>
+                </div>
+                <hr>
+                <div class="left">
+                    <p>
+                        <div>
+                            Dated : <%= article.publishedAt.toLocaleDateString() %>
+                        </div>
+                        at : <%= moment(article.publishedAt).format('HH:mm ') %>
+                    </p>
+                    <h6>Source : <%= article.source %></h6>
+                    <% if(article.author){ %>
+                        <h6>Author : <%= article.author %></h6> 
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</div>
+
+<div class="navbar">
+    <div class="container">
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        <% if(currentUser){ %>
+            <a href="/logout" class="right"><%= currentUser.username %> <i class="fas fa-sign-out-alt"></i></a>
+        <% } else {%>
+            <a href="/login">Login <i class="fas fa-sign-in-alt"></i></a>
+        <% } %>
+        
+        
+    </div>
+</div>
+
+<%- include("partials/footer") %>
