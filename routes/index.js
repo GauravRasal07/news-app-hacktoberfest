@@ -66,7 +66,66 @@ router.post('/home', (req, res) => {
     }
 });
 
-//--------------------------Article save and remove from saved--------------------------
+router.get('/save-article', (req, res) => {
+    req.flash("error", "Please LogIn First");
+    res.redirect('/login');
+});
+
+router.post('/save-article/:Id', middleware.isLoggedIn, (req, res) => {
+    User.findById(req.params.Id).populate('saved').exec((err, user) => {
+        let temp = false;
+        user.saved.forEach(news => {
+            if(news.title == req.body.article.title){
+                temp = true;
+            } 
+        })
+        
+        if(!temp){
+            News.create(req.body.article, (err, savedNews) => {
+                if(err){
+                    console.log(err);
+                } else {
+                    user.saved.push(savedNews);
+                    user.save();
+                    req.flash('success', 'Article saved to your collection!');
+                    res.redirect('/home');
+                }
+            })
+        } else {
+            req.flash('warning', 'The article is allready saved in your collection.');
+            res.redirect('/home');
+        }
+    })
+});
+
+router.get('/remove-article/:Id/:newsId', middleware.isLoggedIn, (req, res) => {
+    User.findById(req.params.Id).populate('saved').exec((err, user) => {
+        if(err){
+             res.redirect('/home');
+        } else {
+            user.saved.forEach(article => {
+                if(article.id == req.params.newsId){
+                    let index = user.saved.indexOf(article);
+                    user.saved.splice(index, 1);
+                    user.save();
+                }
+            });
+            req.flash("success", "Removed from saved");
+            res.redirect('back');
+        }
+    })
+});
+
+router.get('/saved/:userId', middleware.isLoggedIn, (req, res) => {
+    User.findById(req.params.userId).populate('saved').exec((err, user) =>{
+        if(err){
+            console.log(err);
+             res.redirect('/');
+        } else {
+            res.render('saved', { user : user });
+        }
+    })
+})
 
 
 module.exports = router;
